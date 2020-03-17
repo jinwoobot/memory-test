@@ -11,19 +11,20 @@
         }
     </style>
     <script src='https://code.playcanvas.com/playcanvas-stable.js'></script>
+    <script src='assets/playcanvas-gltf.js'></script>
 </head>
 <body>
+<button onclick="load()">load</button>
+<button onclick="remove()">remove</button>
 
 <script type="text/javascript">
+
     var canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
-
     var app = new pc.Application(canvas, {});
     app.start();
-
     app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
     app.setCanvasResolution(pc.RESOLUTION_AUTO);
-
     window.addEventListener('resize', function () {
         app.resizeCanvas();
     });
@@ -37,7 +38,6 @@
     camera.lookAt(0, 3, -10)
     app.root.addChild(camera);
 
-
     // Light
     var light = new pc.Entity('light');
     light.addComponent('light');
@@ -46,23 +46,40 @@
 
     // entity
     const parent = new pc.Entity();
+    const child = new pc.Entity();
     parent.name = 'parent';
+    child.name = 'child';
     app.root.addChild(parent);
 
-    // json load
-    const child = new pc.Entity();
-    pc.app.assets.loadFromUrl('assets/Audi_R8_2017.json', 'model', (err, asset) => {
-        console.log(asset, 'load..');
-        child.addComponent('model');
-        child.model.model = asset.resource;
+
+    function load() {
+        // load A
+        pc.app.assets.loadFromUrl('assets/Audi_R8_2017.json', 'model', (err, asset) => {
+            child.addComponent('model');
+            child.model.model = asset.resource;
+            parent.addChild(child);
+        });
+        // load B
+        // const asset = new pc.Asset('test', 'json', {
+        //     url: 'assets/Audi_R8_2017.json',
+        // });
+        // pc.app.assets.once('load:' + asset.id, () => {
+        //         child.addComponent('model');
+        //         child.model.model = asset.resource;
+        //         parent.addChild(child);
+        // }
+        // pc.app.assets.load(asset);
+    }
+
+    function remove() {
         const parentEntity = pc.app.root.findByName('parent');
-        parentEntity.addChild(child);
-    });
-    setTimeout(() => {
-        child.destroy();
+        parentEntity.removeChild(parentEntity.children[0]);
+        // for (let i = parentEntity.children.length - 1; i >= 0; --i) {
+        //     parentEntity.children[i].destroy();
+        // }
         const asset = pc.app.assets.get(-1);
         pc.app.assets.remove(asset);
-    }, 9000);
+    }
 </script>
 </body>
 </html>
